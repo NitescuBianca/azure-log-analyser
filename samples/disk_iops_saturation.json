@@ -1,0 +1,22 @@
+[
+  {"Timestamp": "2026-05-02T14:01:00Z", "EventId": "153",  "Severity": "Critical", "Source": "disk", "Message": "The IO operation at logical block address 0x1A000 for Disk 0 was retried 10 times and failed.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T14:01:05Z", "EventId": "9",    "Severity": "Critical", "Source": "storahci", "Message": "The device \\Device\\Ide\\IdePort0 did not respond within the timeout period.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T14:00:55Z", "EventId": "129",  "Severity": "Error",    "Source": "storahci", "Message": "Reset to device \\Device\\RaidPort0 was issued due to IO timeout.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T14:00:40Z", "EventId": "51",   "Severity": "Error",    "Source": "disk", "Message": "An error was detected on device \\Device\\Harddisk0\\DR0 during a paging operation.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T14:00:30Z", "EventId": "140",  "Severity": "Error",    "Source": "Microsoft-Windows-StorPort", "Message": "A request to storage device timed out. IOPS limit reached on Standard HDD managed disk.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:59:55Z", "EventId": "7034", "Severity": "Error",    "Source": "Service Control Manager", "Message": "The SQL Server (MSSQLSERVER) service terminated unexpectedly due to storage timeout.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:59:30Z", "EventId": "17204","Severity": "Error",    "Source": "MSSQLSERVER", "Message": "FCB::Open failed: Could not open file C:\\Data\\prod.mdf. OS error: 5(Access is denied).", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:59:00Z", "EventId": "823",  "Severity": "Error",    "Source": "MSSQLSERVER", "Message": "The operating system returned error 1117(The request could not be performed because of an I/O device error) to SQL Server.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:58:30Z", "EventId": "3221228473","Severity": "Error","Source": "MSSQLSERVER", "Message": "Fatal IO error 1117 on file C:\\Data\\prod.mdf during read at offset 0x00000012a00000.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:57:55Z", "EventId": "1000", "Severity": "Error",    "Source": "Application Error", "Message": "Faulting application sqlservr.exe stopped responding due to storage latency exceeding 30000ms.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:57:00Z", "EventId": "2004", "Severity": "Warning",  "Source": "PerfDisk", "Message": "Disk transfer time exceeded 5000ms threshold. Current average: 12400ms.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:56:30Z", "EventId": "100",  "Severity": "Warning",  "Source": "Microsoft-Windows-Hyper-V-StorVSP", "Message": "Storage channel latency degraded. Managed disk IOPS cap (500) exceeded by workload demand (2200 IOPS).", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:56:00Z", "EventId": "4",    "Severity": "Warning",  "Source": "K8s-Node-Agent", "Message": "Node CONTOSO-NODE-02 storage pressure detected. Evicting pods due to disk IO saturation.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:55:30Z", "EventId": "2019", "Severity": "Warning",  "Source": "Server", "Message": "The server was unable to allocate from the system nonpaged pool because the pool was empty due to IO wait.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:55:00Z", "EventId": "1500", "Severity": "Warning",  "Source": "Windows Search", "Message": "Windows Search indexer paused due to high disk latency.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:54:00Z", "EventId": "4625", "Severity": "Information","Source": "Security", "Message": "Logon failed for CONTOSO\\svc-sql due to slow authentication response from storage.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:53:00Z", "EventId": "7036", "Severity": "Information","Source": "Service Control Manager", "Message": "The Windows Search service entered the stopped state.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:52:00Z", "EventId": "6013", "Severity": "Information","Source": "EventLog", "Message": "System uptime 259200 seconds. Disk queue length elevated for past 3600 seconds.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:51:00Z", "EventId": "4624", "Severity": "Information","Source": "Security", "Message": "Successful logon for CONTOSO\\admin. Session established for maintenance check.", "RawLine": ""},
+  {"Timestamp": "2026-05-02T13:50:00Z", "EventId": "1102", "Severity": "Information","Source": "Security", "Message": "Audit log reviewed by CONTOSO\\admin prior to storage incident.", "RawLine": ""}
+]

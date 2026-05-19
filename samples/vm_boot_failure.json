@@ -1,0 +1,22 @@
+[
+  {"Timestamp": "2026-05-01T03:12:01Z", "EventId": "6008", "Severity": "Critical", "Source": "EventLog", "Message": "The previous system shutdown was unexpected.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:12:05Z", "EventId": "41",   "Severity": "Critical", "Source": "Kernel-Power", "Message": "The system has rebooted without cleanly shutting down first.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:11:58Z", "EventId": "1001", "Severity": "Error",    "Source": "BugCheck", "Message": "The computer has rebooted from a bugcheck. Bugcheck 0x0000007E.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:10:44Z", "EventId": "7026", "Severity": "Error",    "Source": "Service Control Manager", "Message": "The following boot-start or system-start driver(s) failed to load: nvlddmkm", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:10:40Z", "EventId": "7000", "Severity": "Error",    "Source": "Service Control Manager", "Message": "The WaAppAgent service failed to start due to the following error: The system cannot find the file specified.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:09:55Z", "EventId": "7034", "Severity": "Error",    "Source": "Service Control Manager", "Message": "The Azure VM Guest Agent service terminated unexpectedly. It has done this 3 time(s).", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:09:10Z", "EventId": "55",   "Severity": "Error",    "Source": "NTFS", "Message": "The file system structure on the disk is corrupt and unusable. Please run the chkdsk utility on the volume OS.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:08:50Z", "EventId": "153",  "Severity": "Error",    "Source": "disk", "Message": "The IO operation at logical block address 0x5000 for Disk 0 was retried.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:08:30Z", "EventId": "129",  "Severity": "Warning",  "Source": "storahci", "Message": "Reset to device, \\Device\\RaidPort0, was issued.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:07:55Z", "EventId": "51",   "Severity": "Warning",  "Source": "disk", "Message": "An error was detected on device \\Device\\Harddisk0\\DR0 during a paging operation.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:07:30Z", "EventId": "1530", "Severity": "Warning",  "Source": "User Profile Service", "Message": "Windows detected your registry file is still in use by other applications or services.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:06:00Z", "EventId": "4199", "Severity": "Warning",  "Source": "Tcpip", "Message": "The system detected an address conflict for IP address 10.0.0.4 with the system having network hardware address.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:05:10Z", "EventId": "1014", "Severity": "Warning",  "Source": "DNS Client Events", "Message": "Name resolution for the name blob.core.windows.net timed out after none of the configured DNS servers responded.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:04:45Z", "EventId": "10016","Severity": "Warning",  "Source": "DistributedCOM", "Message": "The application-specific permission settings do not grant Local Activation permission for the COM Server application.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:03:00Z", "EventId": "4625", "Severity": "Information","Source": "Security", "Message": "An account failed to log on. Logon Type: 3. Account: CONTOSO-VM-01$", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:02:00Z", "EventId": "4624", "Severity": "Information","Source": "Security", "Message": "An account was successfully logged on. Account Name: SYSTEM", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:01:00Z", "EventId": "6013", "Severity": "Information","Source": "EventLog", "Message": "The system uptime is 86400 seconds.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T03:00:30Z", "EventId": "7036", "Severity": "Information","Source": "Service Control Manager", "Message": "The Windows Update service entered the running state.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T02:59:00Z", "EventId": "7036", "Severity": "Information","Source": "Service Control Manager", "Message": "The Windows Firewall service entered the running state.", "RawLine": ""},
+  {"Timestamp": "2026-05-01T02:58:00Z", "EventId": "1102", "Severity": "Information","Source": "Security", "Message": "The audit log was cleared. Subject: Security ID: SYSTEM", "RawLine": ""}
+]
