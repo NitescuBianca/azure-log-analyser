@@ -8,3 +8,4 @@ obj/
 .DS_Store
 samples/parsed_*.json
 samples/report_*.md
+src/analyser/reports/

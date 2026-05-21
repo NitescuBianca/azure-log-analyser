@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure Log Analyser</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mother-earth: #513229;
+    --lucky-dice:   #F4F1E2;
+    --something-blue: #D8EBF9;
+    --the-bay:      #FCE6B7;
+    --walking-vinnie: #D7D4B1;
+
+    --bg:       var(--lucky-dice);
+    --surface:  #fff;
+    --surface2: var(--something-blue);
+    --sidebar-bg: var(--mother-earth);
+    --border:   var(--mother-earth);
+    --accent:   var(--mother-earth);
+    --accent2:  #7a4c3e;
+    --text:     var(--mother-earth);
+    --text-inv: var(--lucky-dice);
+    --text2:    #8f6a5a;
+    --radius:   14px;
+    --font: 'Cabin', sans-serif;
+
+    --dash-len: 18px;
+    --gap-len: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+
+  /* ── Layout ── */
+  .app { display: grid; grid-template-columns: 270px 1fr; min-height: 100vh; }
+  .sidebar { background: var(--sidebar-bg); padding: 28px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .main { padding: 36px 40px; overflow-y: auto; }
+
+  /* ── Sidebar ── */
+  .logo { display: flex; align-items: center; gap: 12px; padding: 8px 12px; margin-bottom: 20px; }
+  .logo-icon { width: 36px; height: 36px; background: var(--the-bay); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .logo-text { font-size: 14px; font-weight: 700; color: var(--lucky-dice); letter-spacing: .04em; }
+  .logo-sub  { font-size: 10px; color: var(--walking-vinnie); letter-spacing: .06em; margin-top: 2px; }
+
+  .nav-label { font-size: 9px; font-weight: 700; color: var(--walking-vinnie); text-transform: uppercase; letter-spacing: .12em; padding: 4px 12px; margin-top: 12px; }
+
+  .nav-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: 10px; border: none;
+    background: none; color: var(--walking-vinnie);
+    font-size: 12px; font-weight: 600; font-family: var(--font);
+    cursor: pointer; width: 100%; text-align: left;
+    transition: background .18s, color .18s;
+    letter-spacing: .03em;
+  }
+  .nav-btn:hover, .nav-btn.active { background: rgba(255,255,255,.1); color: var(--lucky-dice); }
+  .nav-btn.active { background: rgba(244,241,226,.15); }
+  .nav-icon { font-size: 15px; width: 20px; text-align: center; }
+
+  .history-item {
+    padding: 10px 14px; border-radius: 10px; cursor: pointer;
+    transition: background .15s; border: 1px solid transparent;
+  }
+  .history-item:hover { background: rgba(255, 255, 255, 0.148); }
+  .history-item .hi-name { font-size: 11px; font-weight: 600; color: var(--lucky-dice); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .history-item .hi-meta { font-size: 10px; color: var(--walking-vinnie); margin-top: 3px; display: flex; gap: 8px; align-items: center; }
+
+  .badge { display: inline-flex; align-items: center; gap: 3px; font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 20px; letter-spacing: .04em; }
+  .badge.critical { background: #b71c1c22; color: #e57373; }
+  .badge.high     { background: rgba(202, 199, 193, 0.2); color: var(--the-bay); }
+  .badge.medium   { background: rgba(215, 200, 177, 0.15); color: var(--walking-vinnie); }
+  .badge.low      { background: rgba(249, 234, 186, 0.529); color: var(--mother-earth); }
+
+  /* ── Pages ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Upload page ── */
+  .page-title { font-size: 24px; font-weight: 800; margin-bottom: 6px; color: var(--mother-earth); }
+  .page-sub   { font-size: 13px; color: var(--text2); margin-bottom: 32px; line-height: 1.6; font-weight: 400; }
+
+  /* ── Animated Drop Zone ── */
+  .drop-zone {
+    position: relative;
+    border-radius: var(--radius);
+    padding: 60px 32px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--surface);
+    overflow: hidden;
+    transition: background .2s;
+  }
+
+  /* Four SVG-like borders via pseudo + clip trick — use outline + box-shadow layers instead */
+  /* We'll use a CSS animated dashed border via a rotated conic border trick */
+
+  .drop-zone::before,
+  .drop-zone::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    pointer-events: none;
+  }
+
+  /* Animated marching ants border */
+  .drop-zone {
+    --border-width: 2px;
+    --dash: 14px;
+    --total: 28px; /* dash + gap */
+    background-clip: padding-box;
+    isolation: isolate;
+  }
+
+  /* Top border */
+  .drop-zone .border-top,
+  .drop-zone .border-bottom,
+  .drop-zone .border-left,
+  .drop-zone .border-right {
+    position: absolute;
+    background: var(--mother-earth);
+    pointer-events: none;
+    border-radius: 2px;
+  }
+
+  /* We'll use a pure CSS animated dashed border with outline offset animation */
+  .drop-zone {
+    outline: 2px dashed var(--mother-earth);
+    outline-offset: -2px;
+  }
+
+  /* Background position animation to simulate moving dashes */
+  .drop-zone {
+    background-image:
+      repeating-linear-gradient(90deg, var(--mother-earth) 0, var(--mother-earth) 14px, transparent 14px, transparent 28px),
+      repeating-linear-gradient(90deg, var(--mother-earth) 0, var(--mother-earth) 14px, transparent 14px, transparent 28px),
+      repeating-linear-gradient(0deg,  var(--mother-earth) 0, var(--mother-earth) 14px, transparent 14px, transparent 28px),
+      repeating-linear-gradient(0deg,  var(--mother-earth) 0, var(--mother-earth) 14px, transparent 14px, transparent 28px);
+    background-size:
+      100% 2px,
+      100% 2px,
+      2px 100%,
+      2px 100%;
+    background-position:
+      0 0,
+      0 100%,
+      0 0,
+      100% 0;
+    background-repeat: no-repeat;
+    animation: marchAnts 1.6s linear infinite;
+    outline: none;
+  }
+
+  @keyframes marchAnts {
+    0%   { background-position: 0 0,        0 100%,     0 0,       100% 0; }
+    100% { background-position: -28px 0,    28px 100%,  0 28px,    100% -28px; }
+  }
+
+  /* On hover — shift direction: move to the LEFT (reverse horizontal) */
+  .drop-zone:hover {
+    background-color: #fdf9f0;
+    animation: marchAntsHover 1.2s linear infinite;
+  }
+
+  @keyframes marchAntsHover {
+    0%   { background-position: 0 0,        0 100%,     0 0,       100% 0; }
+    100% { background-position: 28px 0,     -28px 100%, 0 -28px,   100% 28px; }
+  }
+
+  .drop-zone.drag-over {
+    background-color: var(--something-blue);
+    animation: marchAntsFast 0.6s linear infinite;
+  }
+
+  @keyframes marchAntsFast {
+    0%   { background-position: 28px 0,   -28px 100%, 0 -28px,  100% 28px; }
+    100% { background-position: 0 0,       0 100%,    0 0,      100% 0; }
+  }
+
+  .drop-icon  { font-size: 44px; margin-bottom: 16px; display: block; }
+  .drop-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--mother-earth); }
+  .drop-sub   { font-size: 12px; color: var(--text2); font-weight: 500; }
+  .drop-sub span { color: var(--mother-earth); font-weight: 700; text-decoration: underline; cursor: pointer; }
+  #file-input { display: none; }
+
+  .file-selected {
+    margin-top: 16px; padding: 14px 18px;
+    background: var(--something-blue);
+    border-radius: 10px; display: flex; align-items: center; gap: 12px;
+    border: 1px solid rgba(239, 230, 227, 0.15);
+  }
+  .file-selected .fs-name { font-size: 12px; font-weight: 600; flex: 1; color: var(--mother-earth); }
+  .file-selected .fs-size { font-size: 11px; color: var(--text2); }
+
+  .btn { padding: 13px 24px; border-radius: 10px; border: none; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .18s; font-family: var(--font); letter-spacing: .05em; }
+  .btn-primary {
+    background: var(--mother-earth); color: var(--lucky-dice);
+    margin-top: 20px; width: 100%; font-size: 13px;
+    text-transform: uppercase; letter-spacing: .1em;
+  }
+  .btn-primary:hover { background: #3e2520; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(81,50,41,.25); }
+  .btn-primary:disabled { opacity: .35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ── Progress ── */
+  .progress-card {
+    background: var(--surface); border: 1px solid rgba(81,50,41,.15);
+    border-radius: var(--radius); padding: 28px; margin-top: 24px; display: none;
+  }
+  .progress-card.visible { display: block; }
+  .progress-title { font-size: 13px; font-weight: 700; margin-bottom: 18px; color: var(--mother-earth); letter-spacing: .04em; }
+  .progress-bar-bg { background: var(--walking-vinnie); border-radius: 99px; height: 6px; overflow: hidden; margin-bottom: 14px; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--mother-earth), #7a4c3e); border-radius: 99px; transition: width .4s ease; width: 0%; }
+  .progress-steps { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+  .progress-step { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text2); font-weight: 500; }
+  .progress-step.done { color: var(--mother-earth); }
+  .progress-step.active { color: var(--mother-earth); font-weight: 700; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--walking-vinnie); flex-shrink: 0; }
+  .progress-step.done .step-dot   { background: var(--walking-vinnie); }
+  .progress-step.active .step-dot { background: var(--mother-earth); box-shadow: 0 0 8px rgba(81,50,41,.4); }
+
+  /* ── Report ── */
+  .report-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+  .report-title { font-size: 22px; font-weight: 800; color: var(--mother-earth); }
+  .report-meta  { font-size: 11px; color: var(--text2); margin-top: 5px; font-weight: 500; letter-spacing: .04em; }
+  .severity-big { font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  .card {
+    background: var(--surface); border: 1px solid rgba(81,50,41,.12);
+    border-radius: var(--radius); padding: 22px;
+    box-shadow: 0 2px 12px rgba(81,50,41,.06);
+  }
+  .card-label {
+    font-size: 9px; font-weight: 800; color: var(--text2);
+    text-transform: uppercase; letter-spacing: .14em; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card-label::after { content: ''; flex: 1; height: 1px; background: rgba(81,50,41,.1); }
+  .card-content { font-size: 13px; line-height: 1.7; color: var(--text); font-weight: 400; }
+
+  .rec-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .rec-item { display: flex; gap: 12px; align-items: flex-start; font-size: 13px; line-height: 1.6; }
+  .rec-num {
+    background: var(--the-bay); color: var(--mother-earth);
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; flex-shrink: 0; margin-top: 1px;
+  }
+
+  .log-table { width: 100%; border-collapse: collapse; font-size: 11px; font-family: 'Courier New', monospace; }
+  .log-table th {
+    text-align: left; padding: 9px 12px; color: var(--text2);
+    font-weight: 700; border-bottom: 2px solid rgba(81,50,41,.12);
+    font-family: var(--font); font-size: 9px; text-transform: uppercase; letter-spacing: .1em;
+  }
+  .log-table td {
+    padding: 8px 12px; border-bottom: 1px solid rgba(81,50,41,.07);
+    color: var(--text2); vertical-align: top;
+    max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .log-table tr:hover td { background: var(--lucky-dice); color: var(--text); }
+
+  .sev-pill { font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 20px; font-family: var(--font); letter-spacing: .05em; }
+  .sev-critical    { background: #fde8e8; color: #b71c1c; }
+  .sev-error       { background: #fde8e8; color: #c62828; }
+  .sev-warning     { background: var(--the-bay); color: #7a5500; }
+  .sev-information { background: var(--something-blue); color: var(--mother-earth); }
+
+  .empty-history { padding: 16px 12px; font-size: 11px; color: var(--walking-vinnie); text-align: center; font-weight: 500; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(81,50,41,.2); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">🔎</div>
+      <div>
+        <div class="logo-text">Log Analyser</div>
+        <div class="logo-sub">Azure AI · Gemini 2.5</div>
+      </div>
+    </div>
+
+    <div class="nav-label">Navigation</div>
+    <button class="nav-btn active" onclick="showPage('upload')" id="nav-upload">
+      <span class="nav-icon">🗂️</span> Analyse Log
+    </button>
+    <button class="nav-btn" onclick="showPage('history-page')" id="nav-history">
+      <span class="nav-icon">🕖</span> Past Reports
+    </button>
+
+    <div class="nav-label" style="margin-top:16px">Recent</div>
+    <div id="sidebar-history"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- UPLOAD PAGE -->
+    <div class="page active" id="upload">
+      <div class="page-title">Analyse a Log File</div>
+      <div class="page-sub">Upload a Windows Event Log or Azure Monitor JSON export to get an AI-powered root cause analysis report.</div>
+
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <span class="drop-icon">📄</span>
+        <div class="drop-title">Drop your log file here</div>
+        <div class="drop-sub">or <span>browse to upload</span> &nbsp;·&nbsp; .json supported</div>
+        <input type="file" id="file-input" accept=".json">
+      </div>
+
+      <div class="file-selected" id="file-selected" style="display:none">
+        <span>📄</span>
+        <span class="fs-name" id="fs-name"></span>
+        <span class="fs-size" id="fs-size"></span>
+      </div>
+
+      <button class="btn btn-primary" id="analyse-btn" disabled onclick="runAnalysis()">
+        Run Analysis
+      </button>
+
+      <!-- Progress -->
+      <div class="progress-card" id="progress-card">
+        <div class="progress-title" id="progress-title">Analysing...</div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-steps">
+          <div class="progress-step" id="pstep-upload"><div class="step-dot"></div>Receiving file</div>
+          <div class="progress-step" id="pstep-parsing"><div class="step-dot"></div>Parsing log entries</div>
+          <div class="progress-step" id="pstep-analysing"><div class="step-dot"></div>Sending to Gemini 2.5 Flash</div>
+          <div class="progress-step" id="pstep-generating"><div class="step-dot"></div>Generating report</div>
+          <div class="progress-step" id="pstep-done"><div class="step-dot"></div>Complete</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORT PAGE -->
+    <div class="page" id="report">
+      <div class="report-header">
+        <div>
+          <div class="report-title" id="r-title">Analysis Report</div>
+          <div class="report-meta" id="r-meta"></div>
+        </div>
+        <div class="severity-big" id="r-severity"></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-label">What Happened</div>
+          <div class="card-content" id="r-what"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Root Cause</div>
+          <div class="card-content" id="r-root"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-label">Recommended Fixes</div>
+        <ul class="rec-list" id="r-recs"></ul>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Top Critical Log Lines</div>
+        <div style="overflow-x:auto;margin-top:8px">
+          <table class="log-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Sev</th>
+                <th>EventId</th>
+                <th>Source</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody id="r-logs"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY PAGE -->
+    <div class="page" id="history-page">
+      <div class="page-title">Past Reports</div>
+      <div class="page-sub">All previous analyses run in this session and saved locally.</div>
+      <div id="history-list"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+let selectedFile = null;
+
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f) setFile(f);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
+
+function setFile(f) {
+  selectedFile = f;
+  document.getElementById('fs-name').textContent = f.name;
+  document.getElementById('fs-size').textContent = (f.size / 1024).toFixed(1) + ' KB';
+  document.getElementById('file-selected').style.display = 'flex';
+  document.getElementById('analyse-btn').disabled = false;
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const map = { 'upload': 'nav-upload', 'history-page': 'nav-history' };
+  if (map[id]) document.getElementById(map[id]).classList.add('active');
+  if (id === 'history-page') loadHistoryPage();
+}
+
+function severityClass(score) {
+  if (score >= 8) return 'critical';
+  if (score >= 5) return 'high';
+  if (score >= 3) return 'medium';
+  return 'low';
+}
+function severityEmoji(score) {
+  if (score >= 8) return '🔴';
+  if (score >= 5) return '🟠';
+  if (score >= 3) return '🟡';
+  return '🟢';
+}
+function sevPillClass(sev) {
+  const s = (sev || '').toLowerCase();
+  if (s === 'critical') return 'sev-critical';
+  if (s === 'error')    return 'sev-error';
+  if (s === 'warning')  return 'sev-warning';
+  return 'sev-information';
+}
+
+function setStep(stepId, state) {
+  const el = document.getElementById('pstep-' + stepId);
+  if (!el) return;
+  el.classList.remove('done', 'active');
+  if (state) el.classList.add(state);
+}
+
+async function runAnalysis() {
+  if (!selectedFile) return;
+  document.getElementById('analyse-btn').disabled = true;
+  document.getElementById('progress-card').classList.add('visible');
+  document.getElementById('progress-title').textContent = 'Analysing...';
+
+  const formData = new FormData();
+  formData.append('file', selectedFile);
+
+  const stepOrder = ['upload', 'parsing', 'analysing', 'generating', 'done'];
+
+  const response = await fetch('/analyse', { method: 'POST', body: formData });
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    const text = decoder.decode(value);
+    const lines = text.split('\n').filter(l => l.startsWith('data: '));
+    for (const line of lines) {
+      const data = JSON.parse(line.slice(6));
+      if (data.progress) document.getElementById('progress-fill').style.width = data.progress + '%';
+      const idx = stepOrder.indexOf(data.step);
+      if (idx >= 0) {
+        for (let i = 0; i < idx; i++) setStep(stepOrder[i], 'done');
+        setStep(data.step, data.step === 'done' ? 'done' : 'active');
+      }
+      document.getElementById('progress-title').textContent = data.message;
+      if (data.step === 'done' && data.result) { setTimeout(() => showReport(data.result), 600); loadSidebarHistory(); }
+      if (data.step === 'error') { document.getElementById('progress-title').textContent = '❌ ' + data.message; document.getElementById('analyse-btn').disabled = false; }
+    }
+  }
+}
+
+function showReport(r) {
+  const score = r.severity_score || 0;
+  const cls   = severityClass(score);
+  const emoji = severityEmoji(score);
+
+  document.getElementById('r-title').textContent = r.filename || 'Analysis Report';
+  document.getElementById('r-meta').textContent  = r.timestamp + '  ·  ' + r.entry_count + ' log entries analysed';
+  document.getElementById('r-severity').innerHTML =
+    `<span class="badge ${cls}" style="font-size:13px;padding:6px 16px">${emoji} ${score}/10</span>`;
+  document.getElementById('r-what').textContent = r.what_happened || '';
+  document.getElementById('r-root').textContent = r.root_cause   || '';
+
+  const recList = document.getElementById('r-recs');
+  recList.innerHTML = '';
+  (r.recommendations || []).forEach((rec, i) => {
+    recList.innerHTML += `<li class="rec-item"><div class="rec-num">${i+1}</div><div>${rec.replace(/^\d+\.\s*/, '')}</div></li>`;
+  });
+
+  const tbody = document.getElementById('r-logs');
+  tbody.innerHTML = '';
+  (r.top_entries || []).forEach(e => {
+    const sev = e.Severity || '';
+    tbody.innerHTML += `<tr>
+      <td>${(e.Timestamp||'').replace('T',' ').replace('Z','')}</td>
+      <td><span class="sev-pill ${sevPillClass(sev)}">${sev}</span></td>
+      <td>${e.EventId||''}</td>
+      <td>${e.Source||''}</td>
+      <td title="${(e.Message||'').replace(/"/g,'&quot;')}">${e.Message||''}</td>
+    </tr>`;
+  });
+
+  showPage('report');
+}
+
+async function loadSidebarHistory() {
+  try {
+    const res = await fetch('/history');
+    const reports = await res.json();
+    const el = document.getElementById('sidebar-history');
+    if (!reports.length) { el.innerHTML = '<div class="empty-history">No reports yet</div>'; return; }
+    el.innerHTML = reports.slice(0,5).map(r => {
+      const cls   = severityClass(r.severity_score || 0);
+      const emoji = severityEmoji(r.severity_score || 0);
+      return `<div class="history-item" onclick='showReport(${JSON.stringify(r)})'>
+        <div class="hi-name">${r.filename}</div>
+        <div class="hi-meta">
+          <span class="badge ${cls}">${emoji} ${r.severity_score}/10</span>
+          <span>${(r.timestamp||'').split(' ')[0]}</span>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+async function loadHistoryPage() {
+  try {
+    const res = await fetch('/history');
+    const reports = await res.json();
+    const el = document.getElementById('history-list');
+    if (!reports.length) { el.innerHTML = '<div class="empty-history" style="margin-top:32px;font-size:13px">No reports yet — run your first analysis.</div>'; return; }
+    el.innerHTML = reports.map(r => {
+      const cls   = severityClass(r.severity_score || 0);
+      const emoji = severityEmoji(r.severity_score || 0);
+      return `<div class="card" style="margin-bottom:12px;cursor:pointer" onclick='showReport(${JSON.stringify(r)})'>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:13px;font-weight:700">${r.filename}</div>
+          <span class="badge ${cls}" style="font-size:11px;padding:4px 12px">${emoji} ${r.severity_score}/10</span>
+        </div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:500;letter-spacing:.04em">${r.timestamp}</div>
+        <div style="font-size:12px;color:var(--text2)">${(r.what_happened||'').slice(0,120)}...</div>
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+loadSidebarHistory();
+</script>
+</body>
+</html>
