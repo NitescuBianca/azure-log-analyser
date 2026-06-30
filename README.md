@@ -5,6 +5,13 @@
 > Powered by Gemini 2.5 Flash. Built from 3 years of Azure IaaS incident response at Microsoft.
 
 ---
+## Why I Built This
+
+After 3 years doing root cause analysis on Azure IaaS workloads at Microsoft,
+I built this tool to automate the first 20 minutes of any incident investigation.
+It packages the debugging patterns I used daily into a tool any engineer can run.
+
+---
 
 ## What it does
 
@@ -100,11 +107,3 @@ Drop in a log file and get back:
 |-------------|----------|
 | `vm_boot_failure.json` | Unexpected VM reboot + OS disk corruption + kernel panic |
 | `disk_iops_saturation.json` | SQL Server failure caused by Standard HDD IOPS cap exceeded |
-
----
-
-## Why I Built This
-
-After 3 years doing root cause analysis on Azure IaaS workloads at Microsoft,
-I built this tool to automate the first 20 minutes of any incident investigation.
-It packages the debugging patterns I used daily into a tool any engineer can run.
